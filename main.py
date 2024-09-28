@@ -6,7 +6,7 @@ import uuid
 # 添加事件
 def create_event(summary, start, end, label):
     event = Event()
-    event.add('summary', f'{summary}（{label}）')
+    event.add('SUMMARY;LANGUAGE=zh_CN', f'{summary}（{label}）')
     event.add('dtstart', start)
     event.add('dtend', end)
     # UID保证唯一
@@ -23,7 +23,7 @@ def create_work_event(summary, start, end):
 
 
 def create_holiday_event(summary, start, end):
-    return create_event(summary, start, end, "休")
+    event = create_event(summary, start, end, "休")
     event.add("TRANSP", "TRANSPARENT")
     event.add("X-APPLE-SPECIAL-DAY", "WORK-HOLIDAY")
     event.add("X-APPLE-UNIVERSAL-ID", str(uuid.uuid1()))
@@ -32,6 +32,11 @@ def create_holiday_event(summary, start, end):
 
 # Create calendar
 cal = Calendar()
+
+cal.add("CALSCALE", "GREGORIAN")
+cal.add("X-WR-CALNAME", "温医一院")
+cal.add("X-APPLE-LANGUAGE", "zh")
+cal.add("X-APPLE-REGION", "CN")
 # 北京时间
 timezone = Timezone()
 timezone.add('tzid', 'Asia/Shanghai')
