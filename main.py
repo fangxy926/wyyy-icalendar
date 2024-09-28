@@ -4,13 +4,29 @@ import uuid
 
 
 # 添加事件
-def create_event(summary, start, end):
+def create_event(summary, start, end, label):
     event = Event()
-    event.add('summary', summary)
+    event.add('summary', f'{summary}（{label}）')
     event.add('dtstart', start)
     event.add('dtend', end)
     # UID保证唯一
     event['uid'] = str(uuid.uuid1())
+    return event
+
+
+def create_work_event(summary, start, end):
+    event = create_event(summary, start, end, "补")
+    event.add("TRANSP", "TRANSPARENT")
+    event.add("X-APPLE-SPECIAL-DAY", "ALTERNATE-WORKDAY")
+    event.add("X-APPLE-UNIVERSAL-ID", str(uuid.uuid1()))
+    return event
+
+
+def create_holiday_event(summary, start, end):
+    return create_event(summary, start, end, "休")
+    event.add("TRANSP", "TRANSPARENT")
+    event.add("X-APPLE-SPECIAL-DAY", "WORK-HOLIDAY")
+    event.add("X-APPLE-UNIVERSAL-ID", str(uuid.uuid1()))
     return event
 
 
@@ -56,12 +72,12 @@ pm_end_m = 30
 
 
 # 国庆节
-cal.add_component(create_event('国庆节假期', datetime(year, 10, 1),
-                               datetime(year, 10, 3)))
-cal.add_component(create_event('上班', datetime(year, 9, 30, am_start_h, am_start_m),
-                               datetime(year, 9, 30, pm_end_h, pm_end_m)))
-# cal.add_component(create_event('10月12日上班', datetime(year, 10, 12), datetime(year, 10, 13)))
+# 假期：默认全天事件，从当天的 00:00 到次日 00:00 结束。
+cal.add_component(create_holiday_event('国庆节假期', datetime(year, 10, 1), datetime(year, 10, 4)))
 
-# Save the calendar to a file
+# 上班安排：具体的上班时间设置为 8:00 至 16:30，或根据实际需要修改时间。
+cal.add_component(create_work_event('上班', datetime(year, 9, 30, am_start_h, am_start_m),
+                                    datetime(year, 9, 30, pm_end_h, pm_end_m)))
+
 with open(f'wyyy_schedule_{year}.ics', 'wb') as f:
     f.write(cal.to_ical())
